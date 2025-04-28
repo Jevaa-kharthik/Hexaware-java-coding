@@ -36,7 +36,6 @@ public class DonationImply implements IDonation{
             }
         } catch (java.sql.SQLException e) {
             System.out.println("Error: Failed to retrieve donations. " + e.getMessage());
-            e.printStackTrace();
         }
         return donations;
         
@@ -62,8 +61,7 @@ public class DonationImply implements IDonation{
                 System.out.println("Failed to record donation.");
             }
         } catch (java.sql.SQLException e) {
-            System.out.println("Error: Failed to record donation. " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("Donation is less than 10$!!! try again");
         }
     }
 }

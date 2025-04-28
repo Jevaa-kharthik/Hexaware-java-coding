@@ -1,6 +1,6 @@
 package com.example.exception;
 
-public class InsuffcientFundsException extends RuntimeException {
+public class InsuffcientFundsException extends Exception {
     public InsuffcientFundsException(String message) {
         super(message);
     }

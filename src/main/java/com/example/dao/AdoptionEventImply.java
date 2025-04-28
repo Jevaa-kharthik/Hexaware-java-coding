@@ -19,19 +19,19 @@ public class AdoptionEventImply implements IAdoptionEvent {
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
     // Register a participant for an event
     @Override
-    public boolean registration(int eventID, String participantName) {
-        String query = "INSERT INTO participants (event_id, participant_name) VALUES (?, ?)";
+    public boolean registration(int eventID, int pet_id, String participantName) {
+        String query = "INSERT INTO participants (event_id, pet_id, participant_name) VALUES (?, ?, ?)";
         try (Connection connection = DBConnUtil.getConnection("src/main/resources/db.properties");
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, eventID);
-            ps.setString(2, participantName);
+            ps.setInt(2, pet_id);
+            ps.setString(3, participantName);
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -49,19 +49,19 @@ public class AdoptionEventImply implements IAdoptionEvent {
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
+                int eventId = rs.getInt("event_id");
                 String eventName = rs.getString("event_name");
                 Date eventDate = rs.getDate("event_date");
-                AdoptionEvent event = new AdoptionEvent(eventName, eventDate.toLocalDate());
+                AdoptionEvent event = new AdoptionEvent(eventId, eventName, eventDate.toLocalDate());
                 events.add(event);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return events;
     }
 
     public boolean adoptPet(int petId) {
-        String query = "UPDATE pets SET is_adopted = TRUE WHERE pet_id = ? AND is_adopted = FALSE";  // Only adopt if pet is not already adopted
+        String query = "UPDATE pets SET is_adopted = 1 WHERE pet_id = ? AND is_adopted = 0";  // Only adopt if pet is not already adopted
         Connection connection = DBConnUtil.getConnection("src/main/resources/db.properties");
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, petId);
@@ -78,5 +78,20 @@ public class AdoptionEventImply implements IAdoptionEvent {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void showAllParticipants() {
+        String query = "SELECT * FROM participants";
+        try (Connection connection = DBConnUtil.getConnection("src/main/resources/db.properties");
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                int eventId = rs.getInt("event_id");
+                String participantName = rs.getString("participant_name");
+                System.out.println("Event ID: " + eventId + ", Participant Name: " + participantName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

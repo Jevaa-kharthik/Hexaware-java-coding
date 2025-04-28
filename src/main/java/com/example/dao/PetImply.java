@@ -28,16 +28,15 @@ public class PetImply implements IPet {
                 System.out.println("Failed to add pet.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return false;
     }
 
     @Override
-    public boolean removePet(Pet pet) {
+    public boolean removePet(int id) {
         String query = "DELETE FROM pets WHERE pet_id = ?";
         try(PreparedStatement ps = connection.prepareStatement(query)){
-            ps.setInt(1, pet.getId());
+            ps.setInt(1, id);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Pet removed successfully.");
@@ -46,7 +45,7 @@ public class PetImply implements IPet {
                 System.out.println("Failed to remove pet.");
             }
         } catch (SQLException e) {
-            e.printStackTrace(); 
+
         }
         return false;  
     }
@@ -95,5 +94,42 @@ public class PetImply implements IPet {
             e.printStackTrace();
         }
         return pets;
+    }
+
+    public int getID(){
+        String query = "SELECT pet_id FROM pets";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                int id = rs.getInt("pet_id");
+                return id;
+            }
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
+
+    public List<Pet> getAllNonAdoptedPets() {
+        String query = "SELECT * FROM pets WHERE is_adopted = 0";
+        List<Pet> adoptedPets = new ArrayList<>();
+    
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("pet_id");
+                String name = resultSet.getString("name");
+                int age = resultSet.getInt("age");
+                String breed = resultSet.getString("breed");
+                String petType = resultSet.getString("pet_type");
+    
+                Pet pet = (petType.equals("Dog")) ? new Dog(id, name, age, breed) : new Cat(id, name, age, breed);
+                adoptedPets.add(pet);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return adoptedPets;
     }
 }

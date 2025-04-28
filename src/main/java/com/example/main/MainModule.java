@@ -9,7 +9,6 @@ import com.example.entities.Dog;
 import com.example.entities.Cat;
 import com.example.entities.Donation;
 import com.example.entities.Pet;
-import com.example.exception.AdoptionException;
 import com.example.exception.InsuffcientFundsException;
 import com.example.exception.InvalidPetAgeHandling;
 import com.example.exception.NullReferenceException;
@@ -23,7 +22,7 @@ import java.util.Scanner;
 
 public class MainModule {
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
         
         // Create DAO objects
@@ -41,7 +40,10 @@ public class MainModule {
             System.out.println("6. Remove Pets");
             System.out.println("7. Host Event");
             System.out.println("8. Register Participant");
-            System.out.println("9. Will you adopt meeeee :) ---> ");
+            System.out.println("9. Show All Participants");
+            System.out.println("10. Avaiable for Adoption");
+            System.out.println("11. Will you adopt meeeee :) ---> ");
+            System.out.println("12. Exit");
             System.out.println("=======================================\n");
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
@@ -76,8 +78,12 @@ public class MainModule {
                         scanner.nextLine();
                         
 
-                        if (amount.compareTo(BigDecimal.TEN) < 0) { // Less than $10
-                            throw new InsuffcientFundsException("Minimum donation amount is $10.");
+                        try{
+                            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                                throw new InsuffcientFundsException("Donation amount must be positive.");
+                            }
+                        } catch (InsuffcientFundsException e) {
+                            System.out.println(e.getMessage());
                         }
 
                         LocalDateTime donationDateTime = LocalDateTime.now();
@@ -120,11 +126,13 @@ public class MainModule {
                     }
                     System.out.print("Enter pet age: ");
                     int petAge = scanner.nextInt();
-                    if (petAge < 0) {
-                        throw new InvalidPetAgeHandling("Pet age cannot be negative.");
+                    try{
+                        if (petAge < 0) {
+                            throw new InvalidPetAgeHandling("Pet age cannot be negative.");
+                        }
                     }
-                    if (petAge > 20) {
-                        throw new InvalidPetAgeHandling("Pet age cannot exceed 20 years.");
+                    catch(InvalidPetAgeHandling e){
+                        System.out.println(e.getMessage());
                     }
                     scanner.nextLine(); // consume newline
                     System.out.print("Enter pet breed: ");
@@ -159,24 +167,22 @@ public class MainModule {
                         throw new NullReferenceException("Pet ID cannot be negative.");
                     }
                     scanner.nextLine(); // consume newline
-                    Pet petToRemove = petDao.getPet(petId);
-                    if (petToRemove != null) {
-                        petDao.removePet(petToRemove);
+                    int id = petDao.getID();
+                    if(petDao.removePet(id)) {
+                        System.out.println("Pet removed successfully.");
                     } else {
-                        System.out.println("Pet not found.");
+                        System.out.println("Failed to remove pet.");
                     }
                     break;
-
                 case 7:
                     // Host Event
                     System.out.print("Enter event name: ");
                     String eventName = scanner.nextLine();
-                    if(eventName.matches("[a-zA-Z0-9]+") == false){
+                    if(eventName.matches("[a-z A-Z0-9]+") == false){
                         throw new NullReferenceException("Event name cannot be empty or contain numbers.");
                     }
                     if (eventName == null || eventName.isEmpty()) {
                         throw new NullReferenceException("Event name cannot be empty.");
-                        
                     }
                     System.out.print("Enter event date (YYYY-MM-DD): ");
                     String eventDateStr = scanner.nextLine();
@@ -200,25 +206,35 @@ public class MainModule {
                         throw new NullReferenceException("Event ID cannot be negative.");
                     }
                     scanner.nextLine();
-                    System.out.print("Enter participant name (pet name): ");
-                    String participantName = scanner.nextLine();
-                    if(participantName.matches("[a-zA-Z]+") == false){
-                        throw new NullReferenceException("Participant name cannot be empty or contain numbers.");
+                    System.out.print("Enter participant ID (pet id): ");
+                    int participant_id = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.print("Enter participant name: ");
+                    String participant_name = scanner.nextLine();
+                    if(participant_id <= 0) {
+                        throw new NullReferenceException("Participant ID cannot be negative.");
                     }
-
-                    if (participantName == null || participantName.isEmpty()) {
-                        throw new AdoptionException("Participant name cannot be empty.");
-                    }
-
-                    boolean registered = eventDao.registration(eventId, participantName);
+                    boolean registered = eventDao.registration(eventId, participant_id, participant_name);
                     if (registered) {
                         System.out.println("Participant registered successfully.");
                     } else {
                         System.out.println("Failed to register participant.");
                     }
                     break;
-                    case 9:
-                    // Adopt Pet
+                case 9:
+                    eventDao.showAllParticipants();
+                    break;
+                case 10:
+                List<Pet> availablePets = petDao.getAllNonAdoptedPets();
+                if (availablePets.isEmpty()) {
+                    System.out.println("No pets available for adoption.");
+                } else {
+                    for (Pet pets : availablePets) {
+                        System.out.println(pets);
+                    }
+                }
+                break;
+                case 11:
                     System.out.print("Enter pet ID to adopt: ");
                     int pet_id = scanner.nextInt();
                     scanner.nextLine(); // consume newline
@@ -234,7 +250,7 @@ public class MainModule {
                         }
                     }
                     break;
-                case 10:
+                case 12:
                     System.out.println("Exiting... Thank you!");
                     scanner.close();
                     return;

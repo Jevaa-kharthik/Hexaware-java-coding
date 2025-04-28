@@ -60,3 +60,17 @@ INSERT INTO adoption_events (event_name, event_date) VALUES
 UPDATE pets 
 SET is_adopted = TRUE 
 WHERE pet_id IN (1, 3, 5);  -- Adopt pets with pet_id 1, 3, and 5
+
+ALTER TABLE participants
+ADD CONSTRAINT pet_id
+FOREIGN KEY (pet_id) REFERENCES pets(pet_id);
+
+select * from pets;
+
+ALTER TABLE participants
+ADD COLUMN pet_id INT;
+ALTER TABLE participants
+ADD CONSTRAINT fk_pet_id
+FOREIGN KEY (pet_id) REFERENCES pets(pet_id);
+
+SELECT * FROM pets;
