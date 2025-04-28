@@ -1,3 +1,4 @@
+-- Active: 1745495296215@@127.0.0.1@3306@petpals
 package com.example.main;
 
 import com.example.dao.AdoptionEventImply;
@@ -12,9 +13,7 @@ import com.example.entities.Pet;
 import com.example.exception.InsuffcientFundsException;
 import com.example.exception.InvalidPetAgeHandling;
 import com.example.exception.NullReferenceException;
-
 import java.math.BigDecimal;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,9 +32,9 @@ public class MainModule {
         while (true) {
             System.out.println("\n===== Pet Adoption Platform Menu =====");
             System.out.println("1. Display All Pets");
-            System.out.println("2. Record Cash Donation");
-            System.out.println("3. Display All Donations");
-            System.out.println("4. Display All Events");
+            System.out.println("2. Display All Donations");
+            System.out.println("3. Display All Events");
+            System.out.println("4. Record Cash Donation");
             System.out.println("5. Add Pets");
             System.out.println("6. Remove Pets");
             System.out.println("7. Host Event");
@@ -62,57 +61,58 @@ public class MainModule {
                     }
                     break;
 
-                    case 2:
-                    // Record Cash Donation
-                        System.out.print("Enter donor name: ");
-                        String donorName = scanner.nextLine();
-                        if(donorName.matches("[a-zA-Z]+") == false){
-                            throw new NullReferenceException("Donor name cannot be empty or contain numbers.");
-                        }
-                        if (donorName == null || donorName.isEmpty()) {
-                            throw new NullReferenceException("Donor name cannot be empty.");
-                            
-                        }
-                        System.out.print("Enter donation amount: ");
-                        BigDecimal amount = scanner.nextBigDecimal();
-                        scanner.nextLine();
-                        
-
-                        try{
-                            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                                throw new InsuffcientFundsException("Donation amount must be positive.");
-                            }
-                        } catch (InsuffcientFundsException e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                        LocalDateTime donationDateTime = LocalDateTime.now();
-                        Donation cashDonation = new CashDonation(donorName, amount, donationDateTime);
-                        donationDao.recordDonation(cashDonation);
-                        break;
+                case 2:
+                 // Display All Donations
+                 List<Donation> donations = donationDao.getAllDonations();
+                 if (donations.isEmpty()) {
+                     System.out.println("No donations recorded.");
+                 } else {
+                     for (Donation donation : donations) {
+                         donation.recordDonation();
+                     }
+                 }
+                 break;
+                    
                 case 3:
-                    // Display All Donations
-                    List<Donation> donations = donationDao.getAllDonations();
-                    if (donations.isEmpty()) {
-                        System.out.println("No donations recorded.");
+                     // Display All Events
+                    List<AdoptionEvent> events = eventDao.getAllEvents();
+                    if (events.isEmpty()) {
+                         System.out.println("No events hosted.");
                     } else {
-                        for (Donation donation : donations) {
-                            donation.recordDonation();
-                        }
+                         for (AdoptionEvent event : events) {
+                             System.out.println(event);
+                         }
                     }
                     break;
 
                 case 4:
-                    // Display All Events
-                    List<AdoptionEvent> events = eventDao.getAllEvents();
-                    if (events.isEmpty()) {
-                        System.out.println("No events hosted.");
-                    } else {
-                        for (AdoptionEvent event : events) {
-                            System.out.println(event);
-                        }
+                // Record Cash Donation
+                System.out.print("Enter donor name: ");
+                String donorName = scanner.nextLine();
+                if(donorName.matches("[a-zA-Z]+") == false){
+                    throw new NullReferenceException("Donor name cannot be empty or contain numbers.");
+                }
+                if (donorName == null || donorName.isEmpty()) {
+                    throw new NullReferenceException("Donor name cannot be empty.");
+                    
+                }
+                System.out.print("Enter donation amount: ");
+                BigDecimal amount = scanner.nextBigDecimal();
+                scanner.nextLine();
+                
+
+                try{
+                    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                        throw new InsuffcientFundsException("Donation amount must be positive.");
                     }
-                    break;
+                } catch (InsuffcientFundsException e) {
+                    System.out.println(e.getMessage());
+                }
+
+                LocalDateTime donationDateTime = LocalDateTime.now();
+                Donation cashDonation = new CashDonation(donorName, amount, donationDateTime);
+                donationDao.recordDonation(cashDonation);
+                break;
 
                 case 5:
                     // Add Pets
