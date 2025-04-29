@@ -41,7 +41,8 @@ public class MainModule {
             System.out.println("9. Show All Participants");
             System.out.println("10. Available for Adoption");
             System.out.println("11. Will you adopt meeeee :) ---> ");
-            System.out.println("12. Exit");
+            System.out.println("12. All the adopted pets");
+            System.out.println("13. Exit");
             System.out.println("=======================================\n");
             System.out.print("Enter your choice: ");
 
@@ -254,6 +255,16 @@ public class MainModule {
                         break;
 
                     case 12:
+                        System.out.println("The list of pets that are adopted : ");
+                        List<Pet> adoptedpets = petDao.getAllAdoptedPets();
+                        if(adoptedpets.isEmpty()){
+                            System.out.println("There is none pets adopted : \n" );
+                        }
+                        for(Pet peting : adoptedpets){
+                            System.out.println(peting);
+                        }
+                        break;
+                    case 13:
                         System.out.println("Exiting... Thank you!");
                         scanner.close();
                         return;
