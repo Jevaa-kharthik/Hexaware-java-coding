@@ -81,14 +81,16 @@ public class AdoptionEventImply implements IAdoptionEvent {
     }
 
     public void showAllParticipants() {
-        String query = "SELECT * FROM participants";
+        String query = "select p.pet_id, p.name, pa.event_id, pa.participant_name FROM pets p JOIN participants pa ON p.pet_id = pa.pet_id WHERE p.pet_id = pa.pet_id;";
         try (Connection connection = DBConnUtil.getConnection("src/main/resources/db.properties");
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
+                int petId = rs.getInt("pet_id");
+                String petName = rs.getString("name");
                 int eventId = rs.getInt("event_id");
                 String participantName = rs.getString("participant_name");
-                System.out.println("Event ID: " + eventId + ", Participant Name: " + participantName);
+                System.out.println("Event ID: " + eventId + "\nParticipant Name: " + participantName + "\nPet ID: " + petId + "\nPet Name: " + petName);
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -39,10 +39,7 @@ public class PetImply implements IPet {
             ps.setInt(1, id);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("Pet removed successfully.");
                 return true;
-            } else {
-                System.out.println("Failed to remove pet.");
             }
         } catch (SQLException e) {
 
@@ -113,6 +110,28 @@ public class PetImply implements IPet {
 
     public List<Pet> getAllNonAdoptedPets() {
         String query = "SELECT * FROM pets WHERE is_adopted = 0";
+        List<Pet> adoptedPets = new ArrayList<>();
+    
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("pet_id");
+                String name = resultSet.getString("name");
+                int age = resultSet.getInt("age");
+                String breed = resultSet.getString("breed");
+                String petType = resultSet.getString("pet_type");
+    
+                Pet pet = (petType.equals("Dog")) ? new Dog(id, name, age, breed) : new Cat(id, name, age, breed);
+                adoptedPets.add(pet);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return adoptedPets;
+    }
+
+    public List<Pet> getAllAdoptedPets() {
+        String query = "SELECT * FROM pets WHERE is_adopted = 1";
         List<Pet> adoptedPets = new ArrayList<>();
     
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {

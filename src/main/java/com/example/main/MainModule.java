@@ -1,4 +1,3 @@
--- Active: 1745495296215@@127.0.0.1@3306@petpals
 package com.example.main;
 
 import com.example.dao.AdoptionEventImply;
@@ -21,9 +20,9 @@ import java.util.Scanner;
 
 public class MainModule {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        
+
         // Create DAO objects
         PetImply petDao = new PetImply();
         DonationImply donationDao = new DonationImply();
@@ -40,223 +39,233 @@ public class MainModule {
             System.out.println("7. Host Event");
             System.out.println("8. Register Participant");
             System.out.println("9. Show All Participants");
-            System.out.println("10. Avaiable for Adoption");
+            System.out.println("10. Available for Adoption");
             System.out.println("11. Will you adopt meeeee :) ---> ");
             System.out.println("12. Exit");
             System.out.println("=======================================\n");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+
+            int choice = -1;
+            try {
+                choice = scanner.nextInt();
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.nextLine(); // Clear the invalid input
+                continue;
+            }
             scanner.nextLine(); // consume newline
 
-            switch (choice) {
-                case 1:
-                    // Display Pet Listings
-                    List<Pet> petListings = petDao.getAllPets();
-                    if (petListings.isEmpty()) {
-                        System.out.println("No pets available.");
-                    } else {
-                        for (Pet pet : petListings) {
-                            System.out.println(pet);
+            try {
+                switch (choice) {
+                    case 1:
+                        List<Pet> petListings = petDao.getAllPets();
+                        if (petListings.isEmpty()) {
+                            System.out.println("No pets available.");
+                        } else {
+                            for (Pet pet : petListings) {
+                                System.out.println(pet);
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case 2:
-                 // Display All Donations
-                 List<Donation> donations = donationDao.getAllDonations();
-                 if (donations.isEmpty()) {
-                     System.out.println("No donations recorded.");
-                 } else {
-                     for (Donation donation : donations) {
-                         donation.recordDonation();
-                     }
-                 }
-                 break;
-                    
-                case 3:
-                     // Display All Events
-                    List<AdoptionEvent> events = eventDao.getAllEvents();
-                    if (events.isEmpty()) {
-                         System.out.println("No events hosted.");
-                    } else {
-                         for (AdoptionEvent event : events) {
-                             System.out.println(event);
-                         }
-                    }
-                    break;
+                    case 2:
+                        List<Donation> donations = donationDao.getAllDonations();
+                        if (donations.isEmpty()) {
+                            System.out.println("No donations recorded.");
+                        } else {
+                            for (Donation donation : donations) {
+                                donation.recordDonation();
+                            }
+                        }
+                        break;
 
-                case 4:
-                // Record Cash Donation
-                System.out.print("Enter donor name: ");
-                String donorName = scanner.nextLine();
-                if(donorName.matches("[a-zA-Z]+") == false){
-                    throw new NullReferenceException("Donor name cannot be empty or contain numbers.");
-                }
-                if (donorName == null || donorName.isEmpty()) {
-                    throw new NullReferenceException("Donor name cannot be empty.");
-                    
-                }
-                System.out.print("Enter donation amount: ");
-                BigDecimal amount = scanner.nextBigDecimal();
-                scanner.nextLine();
-                
+                    case 3:
+                        List<AdoptionEvent> events = eventDao.getAllEvents();
+                        if (events.isEmpty()) {
+                            System.out.println("No events hosted.");
+                        } else {
+                            for (AdoptionEvent event : events) {
+                                System.out.println(event);
+                            }
+                        }
+                        break;
 
-                try{
-                    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                        throw new InsuffcientFundsException("Donation amount must be positive.");
-                    }
-                } catch (InsuffcientFundsException e) {
-                    System.out.println(e.getMessage());
-                }
+                    case 4:
+                        System.out.print("Enter donor name: ");
+                        String donorName = scanner.nextLine();
+                        if (donorName == null || donorName.isEmpty() || !donorName.matches("[a-zA-Z ]+")) {
+                            throw new NullReferenceException("Donor name cannot be empty or contain numbers.");
+                        }
 
-                LocalDateTime donationDateTime = LocalDateTime.now();
-                Donation cashDonation = new CashDonation(donorName, amount, donationDateTime);
-                donationDao.recordDonation(cashDonation);
-                break;
+                        System.out.print("Enter donation amount: ");
+                        BigDecimal amount = scanner.nextBigDecimal();
+                        scanner.nextLine();
 
-                case 5:
-                    // Add Pets
-                    System.out.print("Enter pet name: ");
-                    String petName = scanner.nextLine();
-                    if(petName.matches("[a-zA-Z]+") == false){
-                        throw new NullReferenceException("Pet name cannot be empty or contain numbers.");
-                    }
-                    if(petName == null || petName.isEmpty()) {
-                        throw new NullReferenceException("Pet name cannot be empty.");
-                    }
-                    System.out.print("Enter pet age: ");
-                    int petAge = scanner.nextInt();
-                    try{
+                        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                            throw new InsuffcientFundsException("Donation amount must be positive.");
+                        }
+
+                        LocalDateTime donationDateTime = LocalDateTime.now();
+                        Donation cashDonation = new CashDonation(donorName, amount, donationDateTime);
+                        donationDao.recordDonation(cashDonation);
+                        System.out.println("Donation recorded successfully!");
+                        break;
+
+                    case 5:
+                        System.out.print("Enter pet name: ");
+                        String petName = scanner.nextLine();
+                        if (petName == null || petName.isEmpty() || !petName.matches("[a-zA-Z ]+")) {
+                            throw new NullReferenceException("Pet name cannot be empty or contain numbers.");
+                        }
+
+                        System.out.print("Enter pet age: ");
+                        int petAge = scanner.nextInt();
+                        scanner.nextLine(); // consume newline
                         if (petAge < 0) {
                             throw new InvalidPetAgeHandling("Pet age cannot be negative.");
                         }
-                    }
-                    catch(InvalidPetAgeHandling e){
-                        System.out.println(e.getMessage());
-                    }
-                    scanner.nextLine(); // consume newline
-                    System.out.print("Enter pet breed: ");
-                    String petBreed = scanner.nextLine();
-                    if(petBreed.matches("[a-zA-Z]+") == false){
-                        throw new NullReferenceException("Pet breed cannot be empty or contain numbers.");
-                    }
-                    if (petBreed == null || petBreed.isEmpty()) {
-                        throw new NullReferenceException("Pet breed cannot be empty.");
-                    }
-                    System.out.print("Enter pet type (1 for Dog, 2 for Cat): ");
-                    int petType = scanner.nextInt();
-                    scanner.nextLine();
 
-                    Pet pet;
-                    if (petType == 1) {
-                        pet = new Dog(petName, petAge, petBreed);
-                    } else if (petType == 2) {
-                        pet = new Cat(petName, petAge, petBreed);
-                    } else {
-                        System.out.println("Invalid pet type selected.");
-                        break;
-                    }
-                    petDao.addPet(pet);
-                    break;
-
-                case 6:
-                    // Remove Pets
-                    System.out.print("Enter pet ID to remove: ");
-                    int petId = scanner.nextInt();
-                    if(petId <= 0) {
-                        throw new NullReferenceException("Pet ID cannot be negative.");
-                    }
-                    scanner.nextLine(); // consume newline
-                    int id = petDao.getID();
-                    if(petDao.removePet(id)) {
-                        System.out.println("Pet removed successfully.");
-                    } else {
-                        System.out.println("Failed to remove pet.");
-                    }
-                    break;
-                case 7:
-                    // Host Event
-                    System.out.print("Enter event name: ");
-                    String eventName = scanner.nextLine();
-                    if(eventName.matches("[a-z A-Z0-9]+") == false){
-                        throw new NullReferenceException("Event name cannot be empty or contain numbers.");
-                    }
-                    if (eventName == null || eventName.isEmpty()) {
-                        throw new NullReferenceException("Event name cannot be empty.");
-                    }
-                    System.out.print("Enter event date (YYYY-MM-DD): ");
-                    String eventDateStr = scanner.nextLine();
-                    if(eventDateStr.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}") == false){
-                        throw new NullReferenceException("Event date cannot be empty or contain numbers.");
-                    }
-                    LocalDate eventDate = LocalDate.parse(eventDateStr);
-
-                    AdoptionEvent adoptionEvent = new AdoptionEvent(eventName, eventDate);
-                    boolean hosted = eventDao.hostEvent(adoptionEvent);
-                    if (hosted) {
-                        System.out.println("Event hosted successfully.");
-                    } else {
-                        System.out.println("Failed to host event.");
-                    }
-                    break;
-                case 8:
-                    System.out.print("Enter Event ID to register in: ");
-                    int eventId = scanner.nextInt();
-                    if(eventId <= 0) {
-                        throw new NullReferenceException("Event ID cannot be negative.");
-                    }
-                    scanner.nextLine();
-                    System.out.print("Enter participant ID (pet id): ");
-                    int participant_id = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter participant name: ");
-                    String participant_name = scanner.nextLine();
-                    if(participant_id <= 0) {
-                        throw new NullReferenceException("Participant ID cannot be negative.");
-                    }
-                    boolean registered = eventDao.registration(eventId, participant_id, participant_name);
-                    if (registered) {
-                        System.out.println("Participant registered successfully.");
-                    } else {
-                        System.out.println("Failed to register participant.");
-                    }
-                    break;
-                case 9:
-                    eventDao.showAllParticipants();
-                    break;
-                case 10:
-                List<Pet> availablePets = petDao.getAllNonAdoptedPets();
-                if (availablePets.isEmpty()) {
-                    System.out.println("No pets available for adoption.");
-                } else {
-                    for (Pet pets : availablePets) {
-                        System.out.println(pets);
-                    }
-                }
-                break;
-                case 11:
-                    System.out.print("Enter pet ID to adopt: ");
-                    int pet_id = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
-                
-                    if (pet_id <= 0) {
-                        System.out.println("Invalid pet ID.");
-                    } else {
-                        boolean adopted = eventDao.adoptPet(pet_id);  // Call adoptPet() to mark the pet as adopted
-                        if (adopted) {
-                            System.out.println("I'm Grateful for Adopting me.");
-                        } else if(!adopted) {
-                            System.out.println("Pet is already adopted");
+                        System.out.print("Enter pet breed: ");
+                        String petBreed = scanner.nextLine();
+                        if (petBreed == null || petBreed.isEmpty() || !petBreed.matches("[a-zA-Z ]+")) {
+                            throw new NullReferenceException("Pet breed cannot be empty or contain numbers.");
                         }
-                    }
-                    break;
-                case 12:
-                    System.out.println("Exiting... Thank you!");
-                    scanner.close();
-                    return;
 
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                        System.out.print("Enter pet type (1 for Dog, 2 for Cat): ");
+                        int petType = scanner.nextInt();
+                        scanner.nextLine();
+
+                        Pet pet;
+                        if (petType == 1) {
+                            pet = new Dog(petName, petAge, petBreed);
+                        } else if (petType == 2) {
+                            pet = new Cat(petName, petAge, petBreed);
+                        } else {
+                            System.out.println("Invalid pet type selected.");
+                            break;
+                        }
+                        petDao.addPet(pet);
+                        break;
+
+                    case 6:
+                        System.out.print("Enter pet ID to remove: ");
+                        int petId = scanner.nextInt();
+                        scanner.nextLine();
+                        if (petId <= 0) {
+                            throw new NullReferenceException("Pet ID cannot be negative.");
+                        }
+                        if (petDao.removePet(petId)) {
+                            System.out.println("Pet removed successfully.");
+                        } else {
+                            System.out.println("Failed to remove pet.");
+                        }
+                        break;
+
+                    case 7:
+                        System.out.print("Enter event name: ");
+                        String eventName = scanner.nextLine();
+                        if (eventName == null || eventName.isEmpty() || !eventName.matches("[a-zA-Z0-9 ]+")) {
+                            throw new NullReferenceException("Event name cannot be empty or invalid.");
+                        }
+
+                        System.out.print("Enter event date (YYYY-MM-DD): ");
+                        String eventDateStr = scanner.nextLine();
+                        if (!eventDateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                            throw new NullReferenceException("Invalid event date format.");
+                        }
+                        LocalDate eventDate = LocalDate.parse(eventDateStr);
+
+                        AdoptionEvent adoptionEvent = new AdoptionEvent(eventName, eventDate);
+                        if (eventDao.hostEvent(adoptionEvent)) {
+                            System.out.println("Event hosted successfully!");
+                        } else {
+                            System.out.println("Failed to host event.");
+                        }
+                        break;
+
+                    case 8:
+                        System.out.print("Enter Event ID to register in: ");
+                        int eventId = scanner.nextInt();
+                        scanner.nextLine();
+                        if (eventId <= 0) {
+                            throw new NullReferenceException("Event ID cannot be negative.");
+                        }
+
+                        System.out.print("Enter participant ID (pet id): ");
+                        int participantId = scanner.nextInt();
+                        scanner.nextLine();
+                        if (participantId <= 0) {
+                            throw new NullReferenceException("Participant ID cannot be negative.");
+                        }
+
+                        System.out.print("Enter participant name: ");
+                        String participantName = scanner.nextLine();
+                        if (participantName == null || participantName.isEmpty() || !participantName.matches("[a-zA-Z ]+")) {
+                            throw new NullReferenceException("Participant name cannot be empty or contain numbers.");
+                        }
+
+                        if (eventDao.registration(eventId, participantId, participantName)) {
+                            System.out.println("Participant registered successfully!");
+                        } else {
+                            System.out.println("Failed to register participant.");
+                        }
+                        break;
+
+                    case 9:
+                        eventDao.showAllParticipants();
+                        break;
+
+                    case 10:
+                        List<Pet> availablePets = petDao.getAllNonAdoptedPets();
+                        if (availablePets.isEmpty()) {
+                            System.out.println("No pets available for adoption.");
+                        } else {
+                            for (Pet pets : availablePets) {
+                                System.out.println(pets);
+                            }
+                        }
+                        break;
+
+                    case 11:
+
+                        System.out.println("Available pets for adoption:");
+                        List<Pet> availablePetsToAdopt = petDao.getAllNonAdoptedPets();
+                        if (availablePetsToAdopt.isEmpty()) {
+                            System.out.println("No pets available for adoption.");
+                        } else {
+                            for (Pet pets : availablePetsToAdopt) {
+                                System.out.println(pets);
+                            }
+                        }
+                        System.out.print("Enter pet ID to adopt: ");
+                        int pet_id = scanner.nextInt();
+                        scanner.nextLine();
+
+                        if (pet_id <= 0) {
+                            System.out.println("Invalid pet ID.");
+                        } else {
+                            boolean adopted = eventDao.adoptPet(pet_id);
+                            if (adopted) {
+                                System.out.println("I'm Grateful for Adopting me!");
+                            } else {
+                                System.out.println("Pet is already adopted or not found.");
+                            }
+                        }
+                        break;
+
+                    case 12:
+                        System.out.println("Exiting... Thank you!");
+                        scanner.close();
+                        return;
+
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NullReferenceException | InsuffcientFundsException | InvalidPetAgeHandling e) {
+                System.out.println("Error: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected Error: " + e.getMessage());
+                scanner.nextLine(); // Clear scanner buffer
             }
         }
     }

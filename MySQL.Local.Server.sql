@@ -74,3 +74,11 @@ ADD CONSTRAINT fk_pet_id
 FOREIGN KEY (pet_id) REFERENCES pets(pet_id);
 
 SELECT * FROM pets;
+
+select p.pet_id, p.name, pa.event_id, pa.participant_name
+FROM pets p
+JOIN participants pa ON p.pet_id = pa.pet_id
+WHERE p.pet_id = pa.pet_id;
+delete from participants where participant_id= 3;
+
+select * from participants;
